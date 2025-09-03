@@ -4,6 +4,7 @@ const modalOverlay = document.getElementById("modal-overlay");
 
 // Boton del carrito
 const cartBtn = document.getElementById("cart-btn");
+const cartCounter = document.getElementById("cart-counter");
 
 // Array del carrito
 const displayCart = () => {
@@ -39,62 +40,75 @@ const displayCart = () => {
     modalContainer.append(modalHeader);
 
     // Modal body
-    cart.forEach(product => {
+    if(cart.length > 0){
+        cart.forEach(product => {
 
-        const modalBody = document.createElement("div");
-        modalBody.className = "modal-body";
-        modalBody.innerHTML =  `
-            <div class="product">
-                <img class="product-img" src="${product.img}"/>
-                <div class="product-info">
-                    <h4>${product.productName}</h4>
-                </div>
-                <div class="quantity">
-                    <span class= "quantity-btn-decrease">-</span>
-                    <span class= "quantity-input">${product.quantity}</span>
-                    <span class= "quantity-btn-increase">+</span>
-                </div>
-                <div class="price">${product.price * product.quantity} $</div>
-                <div class="delete-product">❌</div>
-            </div >
+            const modalBody = document.createElement("div");
+            modalBody.className = "modal-body";
+            modalBody.innerHTML =  `
+                <div class="product">
+                    <img class="product-img" src="${product.img}"/>
+                    <div class="product-info">
+                        <h4>${product.productName}</h4>
+                    </div>
+                    <div class="quantity">
+                        <span class= "quantity-btn-decrease">-</span>
+                        <span class= "quantity-input">${product.quantity}</span>
+                        <span class= "quantity-btn-increase">+</span>
+                    </div>
+                    <div class="price">${product.price * product.quantity} $</div>
+                    <div class="delete-product">❌</div>
+                </div >
+                `;
+            modalContainer.append(modalBody);
+
+            // Delete product event
+            const decreaseBtn = modalBody.querySelector(".quantity-btn-decrease");
+            decreaseBtn.addEventListener("click", () => {
+                if(product.quantity !== 1){ // Evitamos que la cantidad sea menor a 1
+                    product.quantity--;
+                    displayCart(); // Llamamos a displayCart para actualizar el carrito
+                }
+                displayCartCounter();
+            });
+
+            // Increase product event
+            const increaseBtn = modalBody.querySelector(".quantity-btn-increase");
+            increaseBtn.addEventListener("click", () => {
+                product.quantity++;
+                displayCart();
+                displayCartCounter();
+            });
+
+            // Delete product event
+            const deleteProduct = modalBody.querySelector(".delete-product");
+
+            deleteProduct.addEventListener("click", () => {
+                deleteCartProduct(product.id);
+                displayCart();
+                displayCartCounter();
+            });
+
+        });
+
+        // Modal footer
+        // Calculate total price
+        const total = cart.reduce((acc, el) => acc + el.price * el.quantity, 0);
+
+        const modalFooter = document.createElement("div");
+        modalFooter.className = "modal-footer";
+        modalFooter.innerHTML = `
+            <div class="total-price">Total: ${total} $</div>
             `;
-        modalContainer.append(modalBody);
+        modalContainer.append(modalFooter);
+    } else {
 
-        // Delete product event
-        const decreaseBtn = modalBody.querySelector(".quantity-btn-decrease");
-        decreaseBtn.addEventListener("click", () => {
-            if(product.quantity !== 1){ // Evitamos que la cantidad sea menor a 1
-                product.quantity--;
-                displayCart(); // Llamamos a displayCart para actualizar el carrito
-            }
-        });
-
-        // Increase product event
-        const increaseBtn = modalBody.querySelector(".quantity-btn-increase");
-        increaseBtn.addEventListener("click", () => {
-            product.quantity++;
-            displayCart();
-        });
-
-        // Delete product event
-        const deleteProduct = modalBody.querySelector(".delete-product");
-        deleteProduct.addEventListener("click", () => {
-            deleteCartProduct(product.id);
-            displayCart();
-        });
-    });
-
-    // Modal footer
-    // Calculate total price
-    const total = cart.reduce((acc, el) => acc + el.price * el.quantity, 0);
-
-    const modalFooter = document.createElement("div");
-    modalFooter.className = "modal-footer";
-    modalFooter.innerHTML = `
-        <div class="total-price">Total: ${total} $</div>
-        `;
-    modalContainer.append(modalFooter);
+    const modalText = document.createElement("h2");
+    modalText.className = "modal-body";
+    modalText.innerText = "Your cart is empty";
+    modalContainer.append(modalText);
     
+    }
 };
 
 cartBtn.addEventListener("click", displayCart);
@@ -103,3 +117,17 @@ const deleteCartProduct = (id) => {
     const foundId = cart.findIndex((element) => element.id === id);
     cart.splice(foundId, 1);
 }
+
+const displayCartCounter = () => {
+    
+    const cartLength = cart.reduce((acc, el) => acc + el.quantity, 0);
+    
+    // Mostrar el contador solo si hay productos en el carrito
+    if (cart.length > 0) {
+        cartCounter.style.display = "block";
+        cartCounter.innerText = cartLength;
+    } else {
+        cartCounter.style.display = "none"; // Ocultar el contador si el carrito está vacío 
+    }
+    
+};
