@@ -1,77 +1,72 @@
-const express = require("express");
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
 const app = express();
-const cors = require("cors");
-const mercadopago = require("mercadopago");
-const path = require("path");
+const PORT = process.env.PORT || 3000;
 
-const { MercadoPagoConfig } = require('mercadopago');
-
-// REPLACE WITH YOUR ACCESS TOKEN AVAILABLE IN: https://developers.mercadopago.com/panel
-// mercadopago.configure({
-// 	access_token: "<ACCESS_TOKEN>",
-// });
-
-const client = new MercadoPagoConfig({
-	accessToken: '<ACCESS_TOKEN>',
-});
-
-
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use('/E-Commerce/client', express.static(path.join(__dirname, '../client')));
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-// app.get("/", function () {
-// 	path.resolve(__dirname, '../client', 'index.html');
-// });
-app.get("/", (req, res) => {
-	res.sendFile(path.resolve(__dirname, '../client/media/index.html'));
+// Static files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, '../client')));
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+// Mercado Pago config
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN, // TEST-xxx
 });
 
-// 2. Ruta explícita para styles.css
-app.get('/media/styles.css', (req, res) => {
-	const cssPath = path.join(__dirname, '../client/media/styles.css');
-	res.sendFile(cssPath, (err) => {
-    if (err) res.status(404).send('CSS no encontrado: ' + err);
-	});
+// Crear preferencia
+app.post('/create_preference', async (req, res) => {
+    
+  try {
+    const { cart } = req.body;
+
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({ error: 'Carrito vacío o inválido' });
+    }
+
+    const items = cart.map((p) => ({
+      title: p.productName,
+      quantity: Number(p.quantity),
+      currency_id: 'ARS',
+      unit_price: Number(p.price),
+    }));
+
+    const preference = new Preference(client);
+    const response = await preference.create({
+      body: {
+        items,
+        back_urls: {
+          success: 'http://localhost:3000/success',
+          failure: 'http://localhost:3000/failure',
+          pending: 'http://localhost:3000/pending',
+        },
+      //auto_return: 'approved',
+      },
+    });
+
+    return res.json({ init_point: response.init_point });
+  } catch (err) {
+    console.error('ERROR COMPLETO:', err);
+    return res.status(500).json({ error: 'Error al crear preferencia' });
+  }
 });
 
-app.post("/create_preference", (req, res) => {
+// Respuestas simples después del pago
+app.get('/success', (req, res) => res.send('Pago aprobado ✅'));
+app.get('/failure', (req, res) => res.send('Pago fallido ❌'));
+app.get('/pending', (req, res) => res.send('Pago pendiente 🕒'));
 
-	let preference = {
-		items: [
-			{
-				title: req.body.description,
-				unit_price: Number(req.body.price),
-				quantity: Number(req.body.quantity),
-			}
-		],
-		back_urls: {
-			"success": "http://localhost:8080/feedback",
-			"failure": "http://localhost:8080/feedback",
-			"pending": "",
-		},
-		auto_return: "approved",
-	};
-
-	mercadopago.preferences.create(preference)
-		.then(function (response) {
-			res.json({
-				id: response.body.id
-			});
-		}).catch(function (error) {
-			console.log(error);
-		});
-});
-
-app.get('/feedback', function (req, res) {
-	res.json({
-		Payment: req.query.payment_id,	
-		Status: req.query.status,
-		MerchantOrder: req.query.merchant_order_id
-	});
-});
-
-app.listen(8080, () => {
-	console.log("The server is now running on Port 8080");
+app.listen(PORT, () => {
+  console.log(`Server on http://localhost:${PORT}`);
 });
