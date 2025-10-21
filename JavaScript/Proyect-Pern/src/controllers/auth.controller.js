@@ -2,11 +2,31 @@ import {pool} from "../db.js";
 import bcrypt from "bcrypt";
 import { createAccessToken } from "../libs/jwt.js";
 
-export const signin = (req, res) => {
-  res.send("Ingresando al sistema");
+export const signin = async (req, res) => {
+  
+  const {email, password} = req.body;
+  const result = await pool.query("SELECT * FROM usuarios WHERE email = $1", [email]);
+  
+  if (result.rowCount === 0) {
+    return res.status(400).json({message: "El usuario no existe"});
+  }
+
+  const validPassword = bcrypt.compareSync(password, result.rows[0].password);
+  if (!validPassword) {
+    return res.status(400).json({message: "Contraseña incorrecta"});
+  }
+
+  const token = await createAccessToken({id: result.rows[0].id});
+      res.cookie("token", token, {
+        httpOnly: true,
+        SameSite: "none",
+        maxAge: 60 * 60 * 24 * 1000,});
+
+      return res.json(result.rows[0]);
+
 };
 
-export const signup = async(req, res) => {
+export const signup = async(req, res, next) => {
 
   const {name, email, password} = req.body;
 
@@ -27,13 +47,16 @@ export const signup = async(req, res) => {
     if (error.code === "23505"){
       return res.status(400).json({message: "El correo ya esta registrado"});
     }
+    next(error);
   }
 };
 
 export const logout = (req, res) => {
-  res.send("Cerrando sesión");
+  res.clearCookie("token");
+  return res.json({message: "Sesión cerrada"});
 };
 
-export const profile = (req, res) => {
-  res.send("Perfil de usuario");
+export const profile = async (req, res) => {
+  const result = await pool.query("SELECT * FROM usuarios WHERE id = $1", [req.userId]);
+  return res.json(result.rows[0]);
 };
