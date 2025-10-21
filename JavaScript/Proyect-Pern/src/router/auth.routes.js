@@ -1,12 +1,13 @@
 import Router from "express";
 import { signin, signup, logout, profile } from "../controllers/auth.controller.js";
+import { isAuth } from "../middlewares/authmiddleware.js";
 
 const router = Router();
 
 router.post("/signin", signin);
 router.post("/signup", signup);
 router.post("/logout", logout);
-router.get("/profile", profile);
+router.get("/profile", isAuth ,profile);
 
 // router.post("/login", (req, res) => {
 //   const { username, password } = req.body;
