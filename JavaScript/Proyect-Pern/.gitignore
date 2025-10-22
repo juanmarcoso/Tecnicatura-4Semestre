@@ -30,7 +30,7 @@ logs/
 *.pgdata
 
 # PostgreSQL dump files
-*.sql
+# *.sql
 
 # OS files
 .DS_Store

@@ -1,6 +1,7 @@
 import {pool} from "../db.js";
 import bcrypt from "bcrypt";
 import { createAccessToken } from "../libs/jwt.js";
+import md5 from "md5";
 
 export const signin = async (req, res) => {
   
@@ -11,7 +12,7 @@ export const signin = async (req, res) => {
     return res.status(400).json({message: "El usuario no existe"});
   }
 
-  const validPassword = bcrypt.compareSync(password, result.rows[0].password);
+  const validPassword = bcrypt.compare(password, result.rows[0].password);
   if (!validPassword) {
     return res.status(400).json({message: "Contraseña incorrecta"});
   }
@@ -20,6 +21,7 @@ export const signin = async (req, res) => {
       res.cookie("token", token, {
         httpOnly: true,
         SameSite: "none",
+        secure: true, // <-- Agregado por seguridad
         maxAge: 60 * 60 * 24 * 1000,});
 
       return res.json(result.rows[0]);
@@ -31,8 +33,11 @@ export const signup = async(req, res, next) => {
   const {name, email, password} = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password,10);    
-    const result = await pool.query("INSERT INTO usuarios (name, email, password) VALUES ($1, $2, $3) RETURNING *", [name, email, hashedPassword]);
+    const hashedPassword = await bcrypt.hash(password,10);
+    // const emailNormalizado = email.trim().toLowerCase();
+    const gravatar = "https://gravatar.com/avatar/" + md5(email);
+    //`https://gravatar.com/avata/${md5(emailNormalizado)}`
+    const result = await pool.query("INSERT INTO usuarios (name, email, password, gravatar) VALUES ($1, $2, $3, $4) RETURNING *", [name, email, hashedPassword, gravatar]);
 
     const token = await createAccessToken({id: result.rows[0].id}); // Puedo aqui hacer que guarde lo que quiera, en este caso vamos a decirle que me guarde el id
     // return res.json(result.rows[0])
