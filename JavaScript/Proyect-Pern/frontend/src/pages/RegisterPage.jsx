@@ -7,16 +7,10 @@ function RegisterPage() {
   const { register, handleSubmit, formState: { errors }} = useForm()
 
   const onSubmit = handleSubmit(async(data) => {
-    console.log(data)
-    const response = await fetch("http://localhost:3000/api/signup", {
-      credentials: "include",
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      }})
-      const json = await response.json()
-      console.log(json)
+    const res = axios.post("http://localhost:3000/api/signup", data, {
+      withCredentials: true,
+    })
+      console.log(res)
   });
 
   return (
