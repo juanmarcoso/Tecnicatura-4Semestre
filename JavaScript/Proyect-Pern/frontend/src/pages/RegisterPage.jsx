@@ -1,15 +1,23 @@
 import { Button, Card, Input } from "../components/ui"
 import { useForm } from "react-hook-form"
+import axios from "axios"
 
 function RegisterPage() {
 
   const { register, handleSubmit, formState: { errors }} = useForm()
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async(data) => {
     console.log(data)
-  })
-
-  console.log(errors)
+    const response = await fetch("http://localhost:3000/api/signup", {
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      }})
+      const json = await response.json()
+      console.log(json)
+  });
 
   return (
     <div className="h-[calc(100vh-64px)] flex items-center justify-center">
@@ -20,8 +28,8 @@ function RegisterPage() {
           <Input type="text" placeholder="Ingrese su nombre"{...register("name", { required: true })}></Input>
           {errors.name && <span className="text-red-500">Este campo es requerido</span>}
 
-          <Input type="text" placeholder="Ingrese su apellido"{...register("lastname", { required: true })}></Input>
-          {errors.lastname && <span className="text-red-500">Este campo es requerido</span>}
+          {/* <Input type="text" placeholder="Ingrese su apellido"{...register("lastname", { required: true })}></Input>
+          {errors.lastname && <span className="text-red-500">Este campo es requerido</span>} */}
 
           <Input type="email" placeholder="Ingrese su email"{...register("email", { required: true })}></Input>
           {errors.email && <span className="text-red-500">Este campo es requerido</span>}
@@ -29,8 +37,8 @@ function RegisterPage() {
           <Input type="password" placeholder="Ingrese su contraseña"{...register("password", { required: true })}></Input>
           {errors.password && <span className="text-red-500">Este campo es requerido</span>}
 
-          <Input type="password" placeholder="Repita su contraseña"{...register("password2", { required: true })}></Input>
-          {errors.password2 && <span className="text-red-500">Este campo es requerido</span>}
+          {/* <Input type="password" placeholder="Repita su contraseña"{...register("password2", { required: true })}></Input>
+          {errors.password2 && <span className="text-red-500">Este campo es requerido</span>} */}
 
           <Button>Registrarse</Button>
         </form>

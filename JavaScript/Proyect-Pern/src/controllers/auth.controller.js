@@ -42,11 +42,12 @@ export const signup = async(req, res, next) => {
     const token = await createAccessToken({id: result.rows[0].id}); // Puedo aqui hacer que guarde lo que quiera, en este caso vamos a decirle que me guarde el id
     // return res.json(result.rows[0])
     res.cookie("token", token, {
+      secure: true, // <-- Agregado por seguridad
       httpOnly: true,
       SameSite: "none",
       maxAge: 60 * 60 * 24 * 1000,
     }); // maxAge seteado en un dia
-    return res.json(result.rows[0]);
+    // return res.json(result.rows[0]); --> Inseguro
   } catch (error) {
     // res.send("Falló creación de usuario") // si dejo esta respuesta no se ejecuta el if
     if (error.code === "23505"){
