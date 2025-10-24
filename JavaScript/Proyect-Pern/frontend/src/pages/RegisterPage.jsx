@@ -1,18 +1,19 @@
 import { Button, Card, Input, Label } from "../components/ui"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
-import axios from "axios"
+import { useAuth } from "../context/AuthContext"
+import { useEffect } from 'react'
 
 function RegisterPage() {
 
-  const { register, handleSubmit, formState: { errors }} = useForm()
+  const { register, handleSubmit, formState: { errors } } = useForm()
 
-  const onSubmit = handleSubmit(async(data) => {
-    const res = axios.post("http://localhost:3000/api/signup", data, {
-      withCredentials: true,
-    })
-      console.log(res)
-  });
+  const { signup } = useAuth()
+  
+  const onSubmit = handleSubmit(async(data) =>{
+    await signup(data) // anonimo?
+    console.log(data)
+  })
 
   return (
     <div className="h-[calc(100vh-64px)] flex place-items-center justify-center">
@@ -30,11 +31,11 @@ function RegisterPage() {
           {errors.lastname && <span className="text-red-500">Este campo es requerido</span>} */}
           
           <Label htmlFor={"email"}>Email</Label>  
-          <Input type="email" placeholder="Ingrese su email"{...register("email", { required: true })}></Input>
+          <Input type="email" placeholder="Ingrese su email"{...register("email", { required: true })} id="email"></Input>
           {errors.email && <span className="text-red-500">Este campo es requerido</span>}
 
           <Label htmlFor={"password"}>Contraseña</Label>
-          <Input type="password" placeholder="Ingrese su contraseña"{...register("password", { required: true })}></Input>
+          <Input type="password" placeholder="Ingrese su contraseña"{...register("password", { required: true })} id="password"></Input>
           {errors.password && <span className="text-red-500">Este campo es requerido</span>}
 
           {/* <Input type="password" placeholder="Repita su contraseña"{...register("password2", { required: true })}></Input>
