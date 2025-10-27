@@ -17,6 +17,29 @@ export function AuthProvider ({children}) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [errors, setErrors] = useState(null); // Mejor un array para los errores
 
+    const signin = async (data) => {
+        try {
+            const res = await axios.post("http://localhost:3000/api/signin", data, {
+                withCredentials: true,
+            });
+                setUser(res.data);
+                setIsAuthenticated(true);
+                setErrors(null);
+                console.log("Usuario logueado:", res.data);
+        } catch (error) {
+            console.error("Error en el inicio de sesion:", error);
+            if (error.response && Array.isArray(error.response.data)) {
+                setErrors(error.response.data);
+            } else if (error.response) {
+                setErrors([error.response.data.message || 'Error en el inicio de sesion']);
+            } else {
+                setErrors([error.message || 'Error desconocido']);
+            }
+            setIsAuthenticated(false);
+            setUser(null);
+        }
+    }
+
     const signup = async (data) => {
         // console.log("Intentando registrar usuario:"); // <-- Debug1
         try {
@@ -56,6 +79,8 @@ export function AuthProvider ({children}) {
         isAuthenticated,
         errors,
         signup,
+        signin,
+        setUser,
         }}>
         {children}
     </AuthContext.Provider>

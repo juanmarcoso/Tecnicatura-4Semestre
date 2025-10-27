@@ -1,16 +1,27 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button, Card, Input, Label } from "../components/ui"
 import { useForm } from "react-hook-form"
-import axios from "axios"
+import { useAuth } from "../context/AuthContext"
+import { useEffect } from 'react' 
 
 function LoginPage() {
   const { register, handleSubmit} = useForm()
+  const { signin, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+       if (isAuthenticated) {
+         navigate("/perfil");
+       }
+     }, [isAuthenticated, navigate])
+  
   const onSubmit = handleSubmit(async(data) => {
-    console.log(data)
-    const res = await axios.post("http://localhost:3000/api/signin", data, {
-      withCredentials: true,
-    })
-    console.log(res)
+
+    try {
+         await signin(data) 
+       } catch (error) {
+         console.error("Error en el registro:", error)
+       }
   })
 
   return (
@@ -22,7 +33,7 @@ function LoginPage() {
           <Input type="email" placeholder="Ingrese su mail" {...register("email", { required: true })}></Input>
           <Label htmlFor="password">Contraseña</Label>
           <Input type="password" placeholder="Ingrese su contraseña" {...register("password", { required: true })}></Input>
-          <Button>Ingresar</Button>
+          <Button type="submit">Ingresar</Button>
         </form>
         <div className="flex justify-between my-4">
           <p>¿No tienes cuenta?</p>
