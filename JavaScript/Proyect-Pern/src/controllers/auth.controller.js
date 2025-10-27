@@ -12,7 +12,11 @@ export const signin = async (req, res) => {
     return res.status(400).json({message: "El usuario no existe"});
   }
 
-  const validPassword = bcrypt.compare(password, result.rows[0].password);
+  const validPassword = await bcrypt.compare(
+    password, 
+    result.rows[0].password
+  );
+  
   if (!validPassword) {
     return res.status(400).json({message: "Contraseña incorrecta"});
   }
