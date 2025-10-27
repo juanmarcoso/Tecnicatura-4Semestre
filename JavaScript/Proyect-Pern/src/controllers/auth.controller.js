@@ -47,7 +47,7 @@ export const signup = async(req, res, next) => {
       SameSite: "none",
       maxAge: 60 * 60 * 24 * 1000,
     }); // maxAge seteado en un dia
-    // return res.json(result.rows[0]); --> Inseguro
+    return res.json(result.rows[0]);
   } catch (error) {
     // res.send("Falló creación de usuario") // si dejo esta respuesta no se ejecuta el if
     if (error.code === "23505"){
