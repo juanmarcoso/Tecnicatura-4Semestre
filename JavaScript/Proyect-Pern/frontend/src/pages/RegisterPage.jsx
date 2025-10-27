@@ -2,39 +2,27 @@ import { Button, Card, Input, Label } from "../components/ui"
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { useAuth } from "../context/AuthContext"
-// 'useEffect' es la clave de la solución
 import { useEffect } from 'react' 
 
 function RegisterPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
-  // 1. OBTENEMOS 'isAuthenticated' DEL CONTEXTO
-  //    (Además de 'signup')
   const { signup, isAuthenticated } = useAuth()
   const navigate = useNavigate() 
   
-  // 2. AÑADIMOS UN 'useEffect' QUE "ESCUCHE" LOS CAMBIOS
   useEffect(() => {
-    // Si isAuthenticated cambia a 'true'
     if (isAuthenticated) {
-      // Navegamos al perfil.
       navigate("/perfil");
     }
-    // Este efecto se ejecutará CADA VEZ que 'isAuthenticated' o 'navigate' cambien.
   }, [isAuthenticated, navigate])
 
   // 3. SIMPLIFICAMOS EL 'onSubmit'
   const onSubmit = handleSubmit(async(data) =>{
     try {
-      // Ahora 'onSubmit' solo se encarga de llamar a signup.
-      // NO se encarga de navegar.
       await signup(data) 
     } catch (error) {
-      // Es buena idea mantener el try/catch por si el email ya existe
       console.error("Error en el registro:", error)
-      // Aquí podrías poner un estado para mostrar el error al usuario
-      // ej: setRegisterError(error.response.data.message)
     }
   })
 
