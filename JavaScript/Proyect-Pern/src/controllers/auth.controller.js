@@ -23,9 +23,9 @@ export const signin = async (req, res) => {
 
   const token = await createAccessToken({id: result.rows[0].id});
       res.cookie("token", token, {
-        httpOnly: true,
+        //httpOnly: true,
         SameSite: "none",
-        secure: true, // <-- Agregado por seguridad
+        //secure: true, // <-- Agregado por seguridad
         maxAge: 60 * 60 * 24 * 1000,});
 
       return res.json(result.rows[0]);
@@ -46,8 +46,8 @@ export const signup = async(req, res, next) => {
     const token = await createAccessToken({id: result.rows[0].id}); // Puedo aqui hacer que guarde lo que quiera, en este caso vamos a decirle que me guarde el id
     // return res.json(result.rows[0])
     res.cookie("token", token, {
-      secure: true, // <-- Agregado por seguridad
-      httpOnly: true,
+      //secure: true, // <-- Agregado por seguridad
+      //httpOnly: true,
       SameSite: "none",
       maxAge: 60 * 60 * 24 * 1000,
     }); // maxAge seteado en un dia
