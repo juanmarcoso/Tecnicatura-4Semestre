@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 
 function LoginPage() {
   const { register, handleSubmit} = useForm()
-  const { signin, isAuthenticated } = useAuth()
+  const { signin, isAuthenticated, errors } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -16,17 +16,17 @@ function LoginPage() {
      }, [isAuthenticated, navigate])
   
   const onSubmit = handleSubmit(async(data) => {
-
-    try {
-         await signin(data) 
-       } catch (error) {
-         console.error("Error en el registro:", error)
-       }
+    await signin(data)
   })
 
   return (
     <div className="h-[calc(100vh-64px)] flex items-center justify-center">
       <Card>
+        {
+          errors && errors.map((error) => (
+            <p key={error} className="text-red-500 text-center mb-2">{error}</p>
+          ))
+        }
         <h1 className="text-4xl font-bold my-2 text-center">Iniciar sesion</h1>
         <form onSubmit={onSubmit}>
           <Label htmlFor="email">Email</Label>

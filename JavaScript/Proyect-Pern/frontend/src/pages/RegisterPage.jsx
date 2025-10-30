@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { useAuth } from "../context/AuthContext"
 import { useEffect } from 'react' 
+import { set } from "zod"
 
 function RegisterPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
-  const { signup, isAuthenticated } = useAuth()
+  const { signup, isAuthenticated, errors: setUserErrors} = useAuth()
   const navigate = useNavigate() 
   
   useEffect(() => {
@@ -29,6 +30,11 @@ function RegisterPage() {
   return (
     <div className="h-[calc(100vh-64px)] flex place-items-center justify-center">
       <Card>
+        {
+          setUserErrors && setUserErrors.map((error) => (
+            <p key={error} className="text-red-500 text-center mb-2">{error}</p>
+          ))
+        }
         <div className="flex justify-center mt-4">
           <h2 className='text-4xl font-bold my-4' >Registro</h2>
         </div>
