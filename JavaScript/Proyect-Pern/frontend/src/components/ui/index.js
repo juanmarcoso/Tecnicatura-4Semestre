@@ -1,5 +1,6 @@
-export {Button} from './Button.jsx'
-export {Card} from './Card.jsx'
-export {Input} from './input.jsx'
-export {Label} from './Label.jsx'
-export { Container } from './Container.jsx'
+export {Button} from './Button';
+export {Input} from './input';
+export {Card} from './Card';
+export {Label} from './Label';
+export {Container} from './Container';
+export {Textarea} from './Textarea';
