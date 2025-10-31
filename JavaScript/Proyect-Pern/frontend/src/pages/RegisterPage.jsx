@@ -1,68 +1,62 @@
-import { Button, Card, Input, Label, Container } from "../components/ui"
-import { Link, useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { useAuth } from "../context/AuthContext"
-import { useEffect } from 'react' 
-import { set } from "zod"
+import { Button, Card, Container, Input, Label } from "../components/ui";
+import  { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 
 function RegisterPage() {
-
-  const { register, handleSubmit, formState: { errors } } = useForm()
-
-  const { signup, isAuthenticated, errors: setUserErrors} = useAuth()
-  const navigate = useNavigate() 
   
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/perfil");
-    }
-  }, [isAuthenticated, navigate])
+  const { register, handleSubmit, formState: {errors} } = useForm();
 
-  // 3. SIMPLIFICAMOS EL 'onSubmit'
-  const onSubmit = handleSubmit(async(data) =>{
-    try {
-      await signup(data) 
-    } catch (error) {
-      console.error("Error en el registro:", error)
+  const {signup, errors: setUserErrors } = useAuth();
+  const navigate = useNavigate();
+  const onSubmit = handleSubmit(async(data) => { 
+    const user = await signup(data);
+    if(user){
+      navigate("/tareas");
     }
-  })
+  });
+
 
   return (
-    <Container className="h-[calc(100vh-10rem)] flex place-items-center justify-center">
+    <Container className="h-[calc(100vh-10rem)] flex items-center justify-center">
       <Card>
-        {
-          setUserErrors && setUserErrors.map((error) => (
-            <p key={error} className="text-red-500 text-center mb-2">{error}</p>
-          ))
-        }
-        <div className="flex justify-center mt-4">
-          <h2 className='text-4xl font-bold my-4' >Registro</h2>
-        </div>
+        {setUserErrors &&
+          setUserErrors.map((error) => (
+            <p className="bg-red-500 text-white p-2">{error}</p>
+          ))}
+        <h3 className="text-4xl font-bold my-2">Registro</h3>
         <form onSubmit={onSubmit}>
-          
-          <Label htmlFor={"name"}>Nombre</Label>
-          <Input type="text" placeholder="Ingrese su nombre"{...register("name", { required: true })}></Input>
-          {errors.name && <span className="text-red-500">Este campo es requerido</span>}
-          
-          <Label htmlFor={"email"}>Email</Label>  
-          <Input type="email" placeholder="Ingrese su email"{...register("email", { required: true })} id="email"></Input>
-          {errors.email && <span className="text-red-500">Este campo es requerido</span>}
+          <Label htmlFor="name">Nombre</Label>
+          <Input placeholder="Ingrese su nombre"
+          {...register("name", {required:true})}></Input>
 
-          <Label htmlFor={"password"}>Contraseña</Label>
-          <Input type="password" placeholder="Ingrese su contraseña"{...register("password", { required: true })} id="password"></Input>
-          {errors.password && <span className="text-red-500">Este campo es requerido</span>}
+        {
+          errors.name && <p className="text-red-500">Este campo es requerido</p>
+        }
+          <Label htmlFor="email">Email</Label>
+          <Input type="email" placeholder="Ingrese su email"
+          {...register("email", {required:true})}></Input>
 
-          <div className="flex justify-center mt-4">
-            <Button type="submit">Registrarse</Button>
-          </div>
+        {
+          errors.email && <p className="text-red-500">Este campo es requerido</p>
+        }
+          <Label htmlFor="password">Contraseña</Label>
+          <Input type="password" placeholder="Ingrese su contraseña"
+          {...register("password", {required:true})}></Input>
+
+        {
+          errors.password && <p className="text-red-500">Este campo es requerido</p>
+        }
+          <Button>Registrarse</Button>
         </form>
-        <div className="flex flex-col items-center my-4">
-          <p>¿Ya tienes una cuenta?</p>
-          <Link to="/login" className="text-blue-500 hover:underline"> Iniciar sesion</Link>
+        <div className=" flex justify-between my-4">
+          <p className="mr-4">¿Ya tienes cuenta?</p>
+          <Link to="/login">Inciar Sesión</Link>
         </div>
       </Card>
     </Container>
-  )
+  );
 }
 
-export default RegisterPage
+export default RegisterPage;
