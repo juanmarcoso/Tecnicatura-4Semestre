@@ -15,4 +15,6 @@ setImmediate(() => {
 // require();
 
 // console.log(process)
-console.log(__dirname)
+// console.log(__dirname)
+// console.log(__filename)
+global.miVariable = "Valor de la variable global";

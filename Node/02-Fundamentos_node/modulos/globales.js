@@ -35,3 +35,24 @@ setImmediate(() => {
 
 // console.log(global)
 // console.log(setInterval)
+
+let i = 0
+let intervalo2 = setInterval(() => {  
+  if (i === 3) {  
+    clearInterval(intervalo2); // Detiene el intervalo después de 3 ejecuciones
+  } else {
+    console.log("Intervalo en módulo global1.js " + i);
+    i++;
+  }
+}, 1000);
+
+setImmediate(() => {
+    console.log("Saludo inmediato")
+})
+
+// require();
+
+// console.log(process)
+// console.log(__dirname)
+// console.log(__filename)
+global.miVariable = "Valor de la variable global";
