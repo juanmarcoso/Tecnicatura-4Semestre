@@ -10,7 +10,7 @@ def get_list():
 
 @app.get('/contact', response_class=HTMLResponse) # Agregamos un decorador para definir la ruta /contact
 def get_list():
-    return """"
+    return """
         <h1>Contacto</h1>
         <p>Mi contacto es:</p>
     """
